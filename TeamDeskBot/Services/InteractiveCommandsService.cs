@@ -9,6 +9,7 @@ namespace TeamDeskBot.Services;
 public class InteractiveCommandsService
 {
     private Dictionary<string, BaseInteraction> _interactions;
+    private const string STAGE_CANCELLED_MESSAGE = "Stage cancelled, going to the previous stage";
 
     public InteractiveCommandsService()
     {
@@ -38,17 +39,11 @@ public class InteractiveCommandsService
         {
             return;
         }
-
-        if (interaction is null)
-        {
-            //TODO: WORK -> resolve this\\ Send message???
-            throw new Exception("An error occured during the execution");
-        }
         
         string data = context.Message.Content;
         interaction.ExecuteStage(data);
         
-        if (interaction.CurrentStage is null)
+        if (interaction.IsFinished)
         {
             string message = interaction.FinishInteraction();
             await context.Channel.SendMessageAsync(message).ConfigureAwait(false);
@@ -56,6 +51,21 @@ public class InteractiveCommandsService
             return;
         }
         
+        await context.Channel.SendMessageAsync(interaction.GetDescription()).ConfigureAwait(false);
+    }
+
+    public async Task CancelStage(SocketCommandContext context)
+    {
+        string key = context.User.Username;
+
+        if (!_interactions.TryGetValue(key, out BaseInteraction? interaction))
+        {
+            //TODO: WORK -> custom exception
+            throw new Exception("An error occured during the execution");
+        }
+        
+        interaction.CancelStage();
+        await context.Channel.SendMessageAsync(STAGE_CANCELLED_MESSAGE).ConfigureAwait(false);
         await context.Channel.SendMessageAsync(interaction.GetDescription()).ConfigureAwait(false);
     }
 }

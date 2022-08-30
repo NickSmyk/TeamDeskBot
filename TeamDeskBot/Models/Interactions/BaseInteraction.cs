@@ -2,8 +2,9 @@
 
 public abstract class BaseInteraction : IInteraction
 {
-    public Stage? CurrentStage { get; set; }
+    public Stage CurrentStage { get; set; }
     public List<Stage> Stages { get; set; }
+    public bool IsFinished { get; private set; }
 
     protected BaseInteraction()
     {
@@ -12,6 +13,7 @@ public abstract class BaseInteraction : IInteraction
         // ReSharper disable once VirtualMemberCallInConstructor
         InitStages();
         this.CurrentStage = this.Stages.First();
+        this.IsFinished = false;
     }
 
     public abstract string FinishInteraction();
@@ -21,17 +23,32 @@ public abstract class BaseInteraction : IInteraction
     public string GetDescription()
     {
         //TODO: WORK -> fix this
-        return this.CurrentStage?.StageTask ?? "No stage is present";
+        return this.CurrentStage.StageTask;
     }
     
     public void ExecuteStage(string data)
     {
-        if (this.CurrentStage is null)
+        if (this.IsFinished)
         {
             return;
         }
+
+        Stage? nextStage = this.CurrentStage.ExecuteStage(data);
+
+        if (nextStage is null)
+        {
+            this.IsFinished = true;
+            return;
+        }
         
-        this.CurrentStage = this.CurrentStage.ExecuteStage(data);
+        this.CurrentStage = nextStage;
+    }
+
+    public void CancelStage()
+    {
+        Stage? previousStage = this.CurrentStage.PreviousStage;
+        //TODO: WORK -> custom exception
+        this.CurrentStage = previousStage ?? throw new Exception("An error occured during the execution");
     }
 
     protected void AddNewStage(Action<string> action, string fieldDescription)

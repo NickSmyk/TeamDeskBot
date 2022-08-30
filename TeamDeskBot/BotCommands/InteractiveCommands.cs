@@ -23,5 +23,10 @@ public class InteractiveCommands : ModuleBase<SocketCommandContext>
         BaseInteraction newInteraction = new AddUserInteraction(_apiRequestsService);
         await _interactiveCommandsService.StartInteraction(this.Context, newInteraction);
     }
-    
+
+    [BotCommand(Commands.CancelStage)]
+    public async Task CancelStage()
+    {
+        await _interactiveCommandsService.CancelStage(this.Context);
+    }
 }

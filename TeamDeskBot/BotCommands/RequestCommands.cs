@@ -45,4 +45,17 @@ public class RequestCommands : ModuleBase<SocketCommandContext>
             
         }
     }
+
+    [BotCommand(Commands.DeleteUser)]
+    public async Task DeleteUser(string id)
+    {
+        try
+        {
+            await _requestCommandsService.DeleteUser(id);
+        }
+        catch
+        {
+            
+        }
+    }
 }

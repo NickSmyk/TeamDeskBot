@@ -30,12 +30,13 @@ public class RequestCommandsService
             message.AppendLine(user.NicknameDis);
             message.AppendLine(user.NicknameTG);
             
-            await context.Channel.SendMessageAsync(message.ToString());
-            
             if (counter != users.Count())
             {
-                await context.Channel.SendMessageAsync("** **");
+                message.AppendLine("** **");
             }
+            
+            await context.Channel.SendMessageAsync(message.ToString());
+            await Task.Delay(TimeSpan.FromSeconds(BotHelper.SPAM_TO_DISCORD_API_DELAY));
         }
         
     }
@@ -53,5 +54,16 @@ public class RequestCommandsService
         }
         
         await context.Channel.SendMessageAsync(builder.ToString());
+    }
+
+    public async Task DeleteUser(string id)
+    {
+        if (!int.TryParse(id, out int userId))
+        {
+            //TODO: WORK -> custom excpetion
+            throw new Exception("An error occured during the execution");
+        }
+
+        await _apiRequestsService.DeleteUser(userId);
     }
 }

@@ -10,4 +10,8 @@ public enum Commands
     GetUsers,
     [Description("Starts the process of adding user")]
     AddUser,
+    [Description("Delete user by id")]
+    DeleteUser,
+    [Description("Delete user by id")]
+    CancelStage,
 }
