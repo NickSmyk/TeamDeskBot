@@ -1,5 +1,6 @@
 ﻿using System.Text;
 using Discord.Commands;
+using Discord.Interactions;
 using TeamDeskBot.Attribute;
 using TeamDeskBot.Extensions;
 using TeamDeskBot.Helpers;
@@ -11,9 +12,11 @@ namespace TeamDeskBot.Services;
 public class CommandsService : ModuleBase<SocketCommandContext>
 {
     private readonly ApiRequestsService _apiRequestsService;
-    
-    public CommandsService()
+    private readonly InteractionsHandler _interactionsHandler;
+
+    public CommandsService(InteractionsHandler interactionsHandler)
     {
+        _interactionsHandler = interactionsHandler;
         _apiRequestsService = new ApiRequestsService();
     }
     

@@ -1,11 +1,15 @@
 ﻿using System.Reflection;
 using Discord;
 using Discord.Commands;
+using Discord.Interactions;
 using Discord.WebSocket;
 using Microsoft.Extensions.DependencyInjection;
 using TeamDeskBot.Helpers;
+using InteractionType = TeamDeskBot.Models.Enums.InteractionType;
+using IResult = Discord.Commands.IResult;
 
 namespace TeamDeskBot.Services;
+
 
 public class Bot
 {
@@ -13,15 +17,18 @@ public class Bot
     private DiscordSocketClient _client;
     private CommandService _commands;
     private IServiceProvider _services;
+    private InteractionsHandler _interactionsHandler;
 
     public async Task RunAsync()
     {
         _client = new DiscordSocketClient();
         _commands = new CommandService();
+        _interactionsHandler = new InteractionsHandler();
 
         _services = new ServiceCollection()
             .AddSingleton(_client)
             .AddSingleton(_commands)
+            .AddSingleton(_interactionsHandler)
             .BuildServiceProvider();
 
         _client.Log += Log;
@@ -61,13 +68,16 @@ public class Bot
 
         int argPos = 0;
 
-        if (message.HasStringPrefix(BotHelper.COMMAND_SYMBOL, ref argPos))
+        if (!message.HasStringPrefix(BotHelper.COMMAND_SYMBOL, ref argPos))
         {
-            IResult? result = await _commands.ExecuteAsync(context, argPos, _services);
-            if (result is null || !result.IsSuccess)
-            {
-                Console.WriteLine("Error");
-            }
+            _interactionsHandler.ProcessInteraction(context);
+        }
+        
+        IResult? result = await _commands.ExecuteAsync(context, argPos, _services);
+            
+        if (result is null || !result.IsSuccess)
+        {
+            Console.WriteLine("Error");
         }
     }
 }
