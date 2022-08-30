@@ -5,13 +5,18 @@ public abstract class BaseInteraction : IInteraction
     public Stage? CurrentStage { get; set; }
     public List<Stage> Stages { get; set; }
 
-    public string FinishInteraction()
+    protected BaseInteraction()
     {
-        string result = OnInteractionFinished();
-        return result;
+        this.Stages = new List<Stage>();
+        //TODO: QUESTION -> is it that bad
+        // ReSharper disable once VirtualMemberCallInConstructor
+        InitStages();
+        this.CurrentStage = this.Stages.First();
     }
 
-    protected abstract string OnInteractionFinished();
+    public abstract string FinishInteraction();
+    
+    protected abstract void InitStages();
 
     public string GetDescription()
     {

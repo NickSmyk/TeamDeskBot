@@ -6,25 +6,26 @@ using TeamDeskBot.Models.Interactions;
 
 namespace TeamDeskBot.Services;
 
-public class InteractionsHandler
+public class InteractiveCommandsService
 {
     private Dictionary<string, BaseInteraction> _interactions;
 
-    public InteractionsHandler()
+    public InteractiveCommandsService()
     {
         _interactions = new Dictionary<string, BaseInteraction>();
     }
 
-    public async Task StartInteraction(SocketCommandContext context, InteractionType type)
+    public async Task StartInteraction(SocketCommandContext context, BaseInteraction newInteraction)
     {
-        if (_interactions.ContainsKey(context.User.Username))
+        string user = context.User.Username;
+        
+        if (_interactions.TryGetValue(user, out BaseInteraction? interaction))
         {
-            string inWorkMessage = $"User currently has an interaction {type.ToString()}";
+            string inWorkMessage = $"User currently has an interaction. {interaction.GetDescription()}";
             await context.Channel.SendMessageAsync(inWorkMessage).ConfigureAwait(false);
             return;
         }
 
-        BaseInteraction newInteraction = new AddUserInteraction();
         _interactions.TryAdd(context.User.Username, newInteraction);
         await context.Channel.SendMessageAsync(newInteraction.GetDescription()).ConfigureAwait(false);
     }
@@ -35,8 +36,7 @@ public class InteractionsHandler
 
         if (!_interactions.TryGetValue(key, out BaseInteraction? interaction))
         {
-            //TODO: WORK -> resolve this
-            throw new Exception("An error occured during the execution");
+            return;
         }
 
         if (interaction is null)

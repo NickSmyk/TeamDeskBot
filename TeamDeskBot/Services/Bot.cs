@@ -17,18 +17,24 @@ public class Bot
     private DiscordSocketClient _client;
     private CommandService _commands;
     private IServiceProvider _services;
-    private InteractionsHandler _interactionsHandler;
+    private InteractiveCommandsService _interactiveCommandsService;
+    private ApiRequestsService _apiRequestsService;
+    private RequestCommandsService _requestCommandsService;
 
     public async Task RunAsync()
     {
         _client = new DiscordSocketClient();
         _commands = new CommandService();
-        _interactionsHandler = new InteractionsHandler();
+        _interactiveCommandsService = new InteractiveCommandsService();
+        _apiRequestsService = new ApiRequestsService();
+        _requestCommandsService = new RequestCommandsService(_apiRequestsService);
 
         _services = new ServiceCollection()
             .AddSingleton(_client)
             .AddSingleton(_commands)
-            .AddSingleton(_interactionsHandler)
+            .AddSingleton(_interactiveCommandsService)
+            .AddSingleton(_apiRequestsService)
+            .AddSingleton(_requestCommandsService)
             .BuildServiceProvider();
 
         _client.Log += Log;
@@ -70,11 +76,12 @@ public class Bot
 
         if (!message.HasStringPrefix(BotHelper.COMMAND_SYMBOL, ref argPos))
         {
-            _interactionsHandler.ProcessInteraction(context);
+            _interactiveCommandsService.ProcessInteraction(context);
         }
         
         IResult? result = await _commands.ExecuteAsync(context, argPos, _services);
-            
+
+        //TODO: QUESTION -> do I really need this
         if (result is null || !result.IsSuccess)
         {
             Console.WriteLine("Error");

@@ -10,6 +10,7 @@ public class ApiRequestsService
     private RestClient _restClient;
     private const string TEAM_DESK_API = "http://localhost:5005";
     private const string GET_USERS = "api/Users/GetUsers";
+    private const string ADD_USER = "api/Users/AddUser";
 
     public ApiRequestsService()
     {
@@ -27,12 +28,12 @@ public class ApiRequestsService
             }).UseNewtonsoftJson();
     }
 
-    public async Task<IEnumerable<User>> GetUsers()
+    public async Task<IEnumerable<UserViewModel>> GetUsers()
     {
         RestRequest request = new($"{TEAM_DESK_API}/{GET_USERS}");
         //request.AddHeader("Authorization", $"Bot {DiscordHelper.BOT_TOKEN}");
         
-        IEnumerable<User>? users = await _restClient.GetAsync<IEnumerable<User>>(request);
+        IEnumerable<UserViewModel>? users = await _restClient.GetAsync<IEnumerable<UserViewModel>>(request);
 
         if (users is null)
         {
@@ -43,4 +44,15 @@ public class ApiRequestsService
         return users;
     }
 
+    public async Task<bool> AddUser(User user)
+    {
+        RestRequest request = new($"{TEAM_DESK_API}/{ADD_USER}");
+        request.AddBody(user);
+        //request.AddHeader("Authorization", $"Bot {DiscordHelper.BOT_TOKEN}");
+        
+        RestResponse response = await _restClient.PostAsync(request);
+        
+        return true;
+    }
+    
 }
