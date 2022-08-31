@@ -25,10 +25,11 @@ public class RequestCommandsService
         {
             counter++;
             StringBuilder message = new();
-            message.AppendLine(user.Id);
-            message.AppendLine(user.Name);
-            message.AppendLine(user.NicknameDis);
-            message.AppendLine(user.NicknameTG);
+            //TODO: WORK -> move this into a different method??
+            message.AppendLine($"**{user.Id}** - Id of the user");
+            message.AppendLine($"**{user.Name}** - Name of the person");
+            message.AppendLine($"**{user.NicknameDis}** - Nickname in discord");
+            message.AppendLine($"**{user.NicknameTG}** - Nickname in telegram");
             
             if (counter != users.Count())
             {
@@ -38,7 +39,6 @@ public class RequestCommandsService
             await context.Channel.SendMessageAsync(message.ToString());
             await Task.Delay(TimeSpan.FromSeconds(BotHelper.SPAM_TO_DISCORD_API_DELAY));
         }
-        
     }
     
     public async Task GetCommands(SocketCommandContext context)

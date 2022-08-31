@@ -22,26 +22,35 @@ public abstract class BaseInteraction : IInteraction
 
     public string GetDescription()
     {
-        //TODO: WORK -> fix this
         return this.CurrentStage.StageTask;
     }
-    
-    public void ExecuteStage(string data)
+
+    //TODO: WORK -> add exception
+    public bool ExecuteStage(string data)
     {
         if (this.IsFinished)
         {
-            return;
+            return true;
         }
 
-        Stage? nextStage = this.CurrentStage.ExecuteStage(data);
-
-        if (nextStage is null)
+        try
         {
-            this.IsFinished = true;
-            return;
-        }
+            Stage? nextStage = this.CurrentStage.ExecuteStage(data);
+
+            if (nextStage is null)
+            {
+                this.IsFinished = true;
+                return true;
+            }
         
-        this.CurrentStage = nextStage;
+            this.CurrentStage = nextStage;
+            return true;
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+            return false;
+        }
     }
 
     public void CancelStage()

@@ -42,7 +42,13 @@ public class InteractiveCommandsService
         }
         
         string data = context.Message.Content;
-        interaction.ExecuteStage(data);
+        bool result = interaction.ExecuteStage(data);
+
+        if (!result)
+        {
+            const string message = "An error occured during the execution, the interaction has been cancelled!";
+            await CancelInteraction(context, message);
+        }
         
         if (interaction.IsFinished)
         {
@@ -55,7 +61,7 @@ public class InteractiveCommandsService
         await context.Channel.SendMessageAsync(interaction.GetDescription()).ConfigureAwait(false);
     }
 
-    public async Task CancelStage(SocketCommandContext context)
+    public async Task CancelStage(SocketCommandContext context, string cancelMessage = STAGE_CANCELLED_MESSAGE)
     {
         string key = context.User.Username;
 
@@ -66,14 +72,14 @@ public class InteractiveCommandsService
         }
         
         interaction.CancelStage();
-        await context.Channel.SendMessageAsync(STAGE_CANCELLED_MESSAGE).ConfigureAwait(false);
+        await context.Channel.SendMessageAsync(cancelMessage).ConfigureAwait(false);
         await context.Channel.SendMessageAsync(interaction.GetDescription()).ConfigureAwait(false);
     }
 
-    public async Task CancelInteraction(SocketCommandContext context)
+    public async Task CancelInteraction(SocketCommandContext context, string message = INTERACTION_CANCELLED_MESSAGE)
     {
         string key = context.User.Username;
         _interactions.Remove(key);
-        await context.Channel.SendMessageAsync(INTERACTION_CANCELLED_MESSAGE).ConfigureAwait(false);
+        await context.Channel.SendMessageAsync(message).ConfigureAwait(false);
     }
 }

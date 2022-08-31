@@ -1,4 +1,6 @@
-﻿using Discord.Commands;
+﻿using System.Reflection;
+using System.Text;
+using Discord.Commands;
 using TeamDeskBot.Attribute;
 using TeamDeskBot.Models;
 using TeamDeskBot.Models.Enums;
@@ -25,11 +27,23 @@ public class InteractiveCommands : ModuleBase<SocketCommandContext>
         await _interactiveCommandsService.StartInteraction(this.Context, newInteraction);
     }
 
+    //TODO: WORK -> I show Id as editable property
     [BotCommand(Commands.EditUser)]
     public async Task EditUser(int userId)
     {
         User user = await _apiRequestsService.GetUser(userId);
         BaseInteraction newInteraction = new EditUserInteraction(_apiRequestsService, user);
+        StringBuilder editInformation = new();
+        PropertyInfo[] properties = user.GetType().GetProperties();
+        const string message = "Here is the list of available fields to edit:";
+        editInformation.AppendLine(message);
+        
+        foreach (PropertyInfo propertyInfo in properties)
+        {
+            editInformation.AppendLine(propertyInfo.Name);
+        }
+
+        await ReplyAsync(editInformation.ToString());
         await _interactiveCommandsService.StartInteraction(this.Context, newInteraction);
     }
 

@@ -13,6 +13,7 @@ public class ApiRequestsService
     private const string GET_USER = "api/Users/GetUser";
     private const string ADD_USER = "api/Users/AddUser";
     private const string DELETE_USER = "api/Users/DeleteUser";
+    private const string EDIT_USER = "api/Users/EditUser";
 
     public ApiRequestsService()
     {
@@ -62,6 +63,21 @@ public class ApiRequestsService
     public async Task<bool> AddUser(User user)
     {
         RestRequest request = new($"{TEAM_DESK_API}/{ADD_USER}");
+        request.AddBody(user);
+        RestResponse response = await _restClient.PostAsync(request);
+
+        if (!response.IsSuccessful)
+        {
+            //TODO: WORK -> custom exception
+            throw new Exception("An error occured during the execution");
+        }
+        
+        return true;
+    }
+
+    public async Task<bool> EditUser(User user)
+    {
+        RestRequest request = new($"{TEAM_DESK_API}/{EDIT_USER}");
         request.AddBody(user);
         RestResponse response = await _restClient.PostAsync(request);
 

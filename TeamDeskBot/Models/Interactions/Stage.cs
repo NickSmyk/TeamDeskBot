@@ -6,17 +6,17 @@ public class Stage
     public Stage? NextStage { get; set; }
     public Stage? PreviousStage { get; set; }
 
-    public Action<string> StageAction;
+    private readonly Action<string> _stageAction;
 
     public Stage(Action<string> stageAction, string filedDescription)
     {
         this.StageTask = $"Please, enter {filedDescription}";
-        StageAction = stageAction;
+        _stageAction = stageAction;
     }
     
     public Stage? ExecuteStage(string message)
     {
-        this.StageAction.Invoke(message);
+        _stageAction.Invoke(message);
         return this.NextStage!;
     }
 }
