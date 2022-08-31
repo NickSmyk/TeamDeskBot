@@ -10,6 +10,7 @@ public class ApiRequestsService
     private RestClient _restClient;
     private const string TEAM_DESK_API = "http://localhost:5005";
     private const string GET_USERS = "api/Users/GetUsers";
+    private const string GET_USER = "api/Users/GetUser";
     private const string ADD_USER = "api/Users/AddUser";
     private const string DELETE_USER = "api/Users/DeleteUser";
 
@@ -41,6 +42,21 @@ public class ApiRequestsService
         }
         
         return users;
+    }
+
+    public async Task<User> GetUser(int id)
+    {
+        RestRequest request = new($"{TEAM_DESK_API}/{GET_USER}");
+        request.AddParameter("userId", id);
+        User? user = await _restClient.GetAsync<User>(request);
+
+        if (user is null)
+        {
+            //TODO: WORK -> custom exception
+            throw new Exception("An error occured during the execution");;
+        }
+        
+        return user;
     }
 
     public async Task<bool> AddUser(User user)

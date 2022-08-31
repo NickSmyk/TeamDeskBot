@@ -10,8 +10,12 @@ public enum Commands
     GetUsers,
     [Description("Starts the process of adding user")]
     AddUser,
+    [Description("Starts the process of editing user")]
+    EditUser,
     [Description("Delete user by id")]
     DeleteUser,
-    [Description("Delete user by id")]
-    CancelStage,
+    [Description("Go to the previous stage of the interaction")]
+    Back,
+    [Description("Cancel the current interaction")]
+    Cancel,
 }

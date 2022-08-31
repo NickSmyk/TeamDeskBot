@@ -13,6 +13,7 @@ public sealed class AddUserInteraction : BaseInteraction
         this.Result = new User();
     }
 
+    //TODO: WORK -> don't forget to fix it
     public override string FinishInteraction()
     {
         this.Result.Country = "";

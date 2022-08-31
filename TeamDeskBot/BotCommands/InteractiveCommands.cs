@@ -1,5 +1,6 @@
 ﻿using Discord.Commands;
 using TeamDeskBot.Attribute;
+using TeamDeskBot.Models;
 using TeamDeskBot.Models.Enums;
 using TeamDeskBot.Models.Interactions;
 using TeamDeskBot.Services;
@@ -24,9 +25,23 @@ public class InteractiveCommands : ModuleBase<SocketCommandContext>
         await _interactiveCommandsService.StartInteraction(this.Context, newInteraction);
     }
 
-    [BotCommand(Commands.CancelStage)]
+    [BotCommand(Commands.EditUser)]
+    public async Task EditUser(int userId)
+    {
+        User user = await _apiRequestsService.GetUser(userId);
+        BaseInteraction newInteraction = new EditUserInteraction(_apiRequestsService, user);
+        await _interactiveCommandsService.StartInteraction(this.Context, newInteraction);
+    }
+
+    [BotCommand(Commands.Back)]
     public async Task CancelStage()
     {
         await _interactiveCommandsService.CancelStage(this.Context);
+    }
+
+    [BotCommand(Commands.Cancel)]
+    public async Task CancelInteraction()
+    {
+        await _interactiveCommandsService.CancelInteraction(this.Context);
     }
 }
