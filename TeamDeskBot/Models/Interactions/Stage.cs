@@ -8,9 +8,10 @@ public class Stage
 
     private readonly Action<string> _stageAction;
 
-    public Stage(Action<string> stageAction, string filedDescription)
+    //TODO: QUESTION -> maybe people should be able to fully specify the message
+    public Stage(Action<string> stageAction, string inputDescription)
     {
-        this.StageTask = $"Please, enter {filedDescription}";
+        this.StageTask = $"Please, enter {inputDescription}";
         _stageAction = stageAction;
     }
     

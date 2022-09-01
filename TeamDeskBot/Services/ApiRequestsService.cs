@@ -1,5 +1,8 @@
-﻿using RestSharp;
+﻿using System.Text.Json;
+using RestSharp;
 using RestSharp.Serializers.NewtonsoftJson;
+using TeamDeskBot.Exceptions;
+using TeamDeskBot.Helpers;
 using TeamDeskBot.Models;
 
 namespace TeamDeskBot.Services;
@@ -26,20 +29,21 @@ public class ApiRequestsService
             httpClient,
             new RestClientOptions(TEAM_DESK_API)
             {
-                ThrowOnAnyError = true,
-                ThrowOnDeserializationError = true
+                BaseUrl = new Uri(TEAM_DESK_API),
+                ThrowOnAnyError = false,
+                ThrowOnDeserializationError = false
             }).UseNewtonsoftJson();
     }
 
     public async Task<IEnumerable<UserViewModel>> GetUsers()
     {
-        RestRequest request = new($"{TEAM_DESK_API}/{GET_USERS}");
-        IEnumerable<UserViewModel>? users = await _restClient.GetAsync<IEnumerable<UserViewModel>>(request);
+        RestRequest request = new(GET_USERS);
+        RestResponse response = await _restClient.GetAsync(request);
+        IEnumerable<UserViewModel>? users = BotHelper.GetResult<IEnumerable<UserViewModel>>(response);
 
         if (users is null)
         {
-            //TODO: WORK -> custom exception
-            throw new Exception("An error occured during the execution");;
+            throw new GetUsersException( $"Users have value of null in method {nameof(GetUsers)}");
         }
         
         return users;
@@ -47,14 +51,14 @@ public class ApiRequestsService
 
     public async Task<User> GetUser(int id)
     {
-        RestRequest request = new($"{TEAM_DESK_API}/{GET_USER}");
+        RestRequest request = new(GET_USER);
         request.AddParameter("userId", id);
         User? user = await _restClient.GetAsync<User>(request);
 
         if (user is null)
         {
-            //TODO: WORK -> custom exception
-            throw new Exception("An error occured during the execution");;
+            const string message = $"Null user at {nameof(User)}";
+            throw new GetUserException(id, message);
         }
         
         return user;
@@ -62,14 +66,13 @@ public class ApiRequestsService
 
     public async Task<bool> AddUser(User user)
     {
-        RestRequest request = new($"{TEAM_DESK_API}/{ADD_USER}");
+        RestRequest request = new(ADD_USER);
         request.AddBody(user);
         RestResponse response = await _restClient.PostAsync(request);
 
         if (!response.IsSuccessful)
         {
-            //TODO: WORK -> custom exception
-            throw new Exception("An error occured during the execution");
+            throw new AddUserException(response.StatusCode.ToString());
         }
         
         return true;
@@ -77,14 +80,14 @@ public class ApiRequestsService
 
     public async Task<bool> EditUser(User user)
     {
-        RestRequest request = new($"{TEAM_DESK_API}/{EDIT_USER}");
+        RestRequest request = new(EDIT_USER);
         request.AddBody(user);
         RestResponse response = await _restClient.PostAsync(request);
 
         if (!response.IsSuccessful)
         {
-            //TODO: WORK -> custom exception
-            throw new Exception("An error occured during the execution");
+            string message = $"The response had status {response.StatusCode}";
+            throw new EditUserException(user.Id, message);
         }
         
         return true;
@@ -92,14 +95,14 @@ public class ApiRequestsService
 
     public async Task DeleteUser(int id)
     {
-        RestRequest request = new($"{TEAM_DESK_API}/{DELETE_USER}");
+        RestRequest request = new(DELETE_USER);
         request.AddParameter("id", id);
         RestResponse response = await _restClient.GetAsync(request);
         
         if (!response.IsSuccessful)
         {
-            //TODO: WORK -> custom exception
-            throw new Exception("An error occured during the execution");
+            string message = $"The response had status {response.ResponseStatus}";
+            throw new DeleteUserException(id, message);
         }
     }
 }

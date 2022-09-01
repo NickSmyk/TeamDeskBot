@@ -1,6 +1,7 @@
 ﻿using System.Text;
 using Discord.Commands;
 using TeamDeskBot.Attribute;
+using TeamDeskBot.Exceptions;
 using TeamDeskBot.Extensions;
 using TeamDeskBot.Helpers;
 using TeamDeskBot.Models;
@@ -26,9 +27,15 @@ public class RequestCommands : ModuleBase<SocketCommandContext>
             await _requestCommandsService.GetUsers(this.Context);
 
         }
-        catch
+        catch (BaseException ex)
         {
-            
+            Console.WriteLine(ex);
+            await ReplyAsync(ex.DisplayMessage);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex);
+            await ReplyAsync(ErrorsHelper.ERROR_DURING_COMMAND_EXECUTION);
         }
         
     }
@@ -40,9 +47,10 @@ public class RequestCommands : ModuleBase<SocketCommandContext>
         {
             await _requestCommandsService.GetCommands(this.Context);
         }
-        catch
+        catch (Exception ex)
         {
-            
+            Console.WriteLine(ex);
+            await ReplyAsync(ErrorsHelper.ERROR_DURING_COMMAND_EXECUTION);
         }
     }
 
@@ -53,9 +61,15 @@ public class RequestCommands : ModuleBase<SocketCommandContext>
         {
             await _requestCommandsService.DeleteUser(id);
         }
-        catch
+        catch (BaseException ex)
         {
-            
+            Console.WriteLine(ex);
+            await ReplyAsync(ex.DisplayMessage);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex);
+            await ReplyAsync(ErrorsHelper.ERROR_DURING_COMMAND_EXECUTION);
         }
     }
 }

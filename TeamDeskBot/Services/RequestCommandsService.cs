@@ -1,5 +1,6 @@
 ﻿using System.Text;
 using Discord.Commands;
+using TeamDeskBot.Exceptions;
 using TeamDeskBot.Extensions;
 using TeamDeskBot.Helpers;
 using TeamDeskBot.Models;
@@ -15,6 +16,7 @@ public class RequestCommandsService
     {
         _apiRequestsService = apiRequestsService;
     }
+    
     public async Task GetUsers(SocketCommandContext context)
     {
         //TODO: QUESTION -> can I make it better
@@ -60,8 +62,7 @@ public class RequestCommandsService
     {
         if (!int.TryParse(id, out int userId))
         {
-            //TODO: WORK -> custom excpetion
-            throw new Exception("An error occured during the execution");
+            throw new ParsingException(id, nameof(id));
         }
 
         await _apiRequestsService.DeleteUser(userId);

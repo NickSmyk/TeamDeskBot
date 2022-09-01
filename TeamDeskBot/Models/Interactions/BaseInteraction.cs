@@ -1,4 +1,6 @@
-﻿namespace TeamDeskBot.Models.Interactions;
+﻿using TeamDeskBot.Exceptions;
+
+namespace TeamDeskBot.Models.Interactions;
 
 public abstract class BaseInteraction : IInteraction
 {
@@ -42,9 +44,14 @@ public abstract class BaseInteraction : IInteraction
                 this.IsFinished = true;
                 return true;
             }
-        
+
             this.CurrentStage = nextStage;
             return true;
+        }
+        catch (BaseException ex)
+        {
+            Console.WriteLine(ex);
+            return false;
         }
         catch (Exception e)
         {
@@ -60,9 +67,9 @@ public abstract class BaseInteraction : IInteraction
         this.CurrentStage = previousStage ?? throw new Exception("An error occured during the execution");
     }
 
-    protected void AddNewStage(Action<string> action, string fieldDescription)
+    protected void AddNewStage(Action<string> action, string inputDescription)
     {
-        Stage newStage = new(action, fieldDescription);
+        Stage newStage = new(action, inputDescription);
         Stage? previousStage = this.Stages.LastOrDefault();
 
         if (previousStage is null)
