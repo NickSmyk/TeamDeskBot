@@ -11,7 +11,6 @@ public abstract class BaseInteraction : IInteraction
     protected BaseInteraction()
     {
         this.Stages = new List<Stage>();
-        //TODO: QUESTION -> is it that bad
         // ReSharper disable once VirtualMemberCallInConstructor
         InitStages();
         this.CurrentStage = this.Stages.First();
@@ -27,44 +26,29 @@ public abstract class BaseInteraction : IInteraction
         return this.CurrentStage.StageTask;
     }
 
-    //TODO: WORK -> add exception
-    public bool ExecuteStage(string data)
+    public void ExecuteStage(string data)
     {
         if (this.IsFinished)
         {
-            return true;
+            return;
         }
 
-        try
-        {
-            Stage? nextStage = this.CurrentStage.ExecuteStage(data);
+        Stage? nextStage = this.CurrentStage.ExecuteStage(data);
 
-            if (nextStage is null)
-            {
-                this.IsFinished = true;
-                return true;
-            }
+        if (nextStage is null)
+        {
+            this.IsFinished = true;
+            return;
+        }
 
-            this.CurrentStage = nextStage;
-            return true;
-        }
-        catch (BaseException ex)
-        {
-            Console.WriteLine(ex);
-            return false;
-        }
-        catch (Exception e)
-        {
-            Console.WriteLine(e);
-            return false;
-        }
+        this.CurrentStage = nextStage;
     }
 
     public void CancelStage()
     {
-        Stage? previousStage = this.CurrentStage.PreviousStage;
-        //TODO: WORK -> custom exception
-        this.CurrentStage = previousStage ?? throw new Exception("An error occured during the execution");
+        Stage? previousStage = this.CurrentStage.PreviousStage; 
+        //TODO: QUESTION -> most likely I don't meed to throw here 
+        this.CurrentStage = previousStage ?? this.CurrentStage;
     }
 
     protected void AddNewStage(Action<string> action, string inputDescription)

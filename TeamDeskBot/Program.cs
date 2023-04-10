@@ -1,5 +1,7 @@
-﻿using TeamDeskBot.Services;
+﻿using Microsoft.Extensions.Configuration;
+using TeamDeskBot.Services;
 
-Bot bot = new();
-
-bot.RunAsync().GetAwaiter().GetResult();
+IConfigurationRoot config = new ConfigurationBuilder().AddUserSecrets<Program>().Build();
+string botToken = config["BotToken"];
+Bot bot = new(botToken);
+await bot.RunAsync();

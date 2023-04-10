@@ -1,11 +1,10 @@
 ﻿using Discord.Commands;
-using Discord.Interactions;
-using TeamDeskBot.Models;
-using TeamDeskBot.Models.Enums;
+using TeamDeskBot.Exceptions;
 using TeamDeskBot.Models.Interactions;
 
 namespace TeamDeskBot.Services;
 
+//TODO: WORK -> move into a different class
 public class InteractiveCommandsService
 {
     private Dictionary<string, BaseInteraction> _interactions;
@@ -42,13 +41,7 @@ public class InteractiveCommandsService
         }
         
         string data = context.Message.Content;
-        bool result = interaction.ExecuteStage(data);
-
-        if (!result)
-        {
-            const string message = "An error occured during the execution, the interaction has been cancelled!";
-            await CancelInteraction(context, message);
-        }
+        interaction.ExecuteStage(data);
         
         if (interaction.IsFinished)
         {
@@ -63,15 +56,31 @@ public class InteractiveCommandsService
 
     public async Task CancelStage(SocketCommandContext context, string cancelMessage = STAGE_CANCELLED_MESSAGE)
     {
-        string key = context.User.Username;
+        string user = context.User.Username;
 
-        if (!_interactions.TryGetValue(key, out BaseInteraction? interaction))
+        if (!_interactions.TryGetValue(user, out BaseInteraction? interaction))
         {
-            //TODO: WORK -> custom exception
-            throw new Exception("An error occured during the execution");
+            throw new NoInteractionException(user);
+        }
+
+        try
+        {
+            interaction.CancelStage();
+        }
+        catch (BaseException ex)
+        {
+            Console.WriteLine(ex);
+            await context.Channel.SendMessageAsync(ex.DisplayMessage).ConfigureAwait(false);
+            return;
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+            const string message = "Wasn't able to go back in the current interaction";
+            await context.Channel.SendMessageAsync(message).ConfigureAwait(false);
+            return;
         }
         
-        interaction.CancelStage();
         await context.Channel.SendMessageAsync(cancelMessage).ConfigureAwait(false);
         await context.Channel.SendMessageAsync(interaction.GetDescription()).ConfigureAwait(false);
     }

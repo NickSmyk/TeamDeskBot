@@ -4,7 +4,7 @@ using TeamDeskBot.Services;
 
 namespace TeamDeskBot.Models.Interactions;
 
-public class EditUserInteraction : BaseInteraction
+public sealed class EditUserInteraction : BaseInteraction
 {
     private User User { get; }
     private readonly ApiRequestsService _apiRequestsService;
@@ -16,7 +16,6 @@ public class EditUserInteraction : BaseInteraction
         this.User = user;
     }
 
-    //TODO: WORK -> don't forget to fix it
     public override string FinishInteraction()
     {
         _apiRequestsService.EditUser(this.User).GetAwaiter().GetResult();

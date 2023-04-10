@@ -37,7 +37,6 @@ public class RequestCommands : ModuleBase<SocketCommandContext>
             Console.WriteLine(ex);
             await ReplyAsync(ErrorsHelper.ERROR_DURING_COMMAND_EXECUTION);
         }
-        
     }
 
     [BotCommand(Commands.Commands)]

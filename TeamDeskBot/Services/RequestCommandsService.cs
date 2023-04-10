@@ -20,6 +20,7 @@ public class RequestCommandsService
     public async Task GetUsers(SocketCommandContext context)
     {
         //TODO: QUESTION -> can I make it better
+        //TODO: WORK -> GetEnumerator
         IEnumerable<UserViewModel> users = await _apiRequestsService.GetUsers();
         int counter = 0;
         
@@ -27,7 +28,6 @@ public class RequestCommandsService
         {
             counter++;
             StringBuilder message = new();
-            //TODO: WORK -> move this into a different method??
             message.AppendLine($"**{user.Id}** - Id of the user");
             message.AppendLine($"**{user.Name}** - Name of the person");
             message.AppendLine($"**{user.NicknameDis}** - Nickname in discord");

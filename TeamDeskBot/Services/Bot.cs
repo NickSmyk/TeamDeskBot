@@ -4,6 +4,7 @@ using Discord.Commands;
 using Discord.Interactions;
 using Discord.WebSocket;
 using Microsoft.Extensions.DependencyInjection;
+using TeamDeskBot.Exceptions;
 using TeamDeskBot.Helpers;
 using InteractionType = TeamDeskBot.Models.Enums.InteractionType;
 using IResult = Discord.Commands.IResult;
@@ -13,33 +14,35 @@ namespace TeamDeskBot.Services;
 
 public class Bot
 {
-    private const string TOKEN = "MTAxMDIwNTE4NDY5MTAxNTczMQ.GKPtTC.LNXj-T62HhGOoQm8hceNrHkAiBfkgH6aD_a4dg";
-    private DiscordSocketClient _client;
-    private CommandService _commands;
-    private IServiceProvider _services;
-    private InteractiveCommandsService _interactiveCommandsService;
-    private ApiRequestsService _apiRequestsService;
-    private RequestCommandsService _requestCommandsService;
+    private readonly string _token;
+    private readonly DiscordSocketClient _client;
+    private readonly CommandService _commands;
+    private readonly IServiceProvider _services;
+    private readonly InteractiveCommandsService _interactiveCommandsService;
 
-    public async Task RunAsync()
+    public Bot(string botToken)
     {
+        _token = botToken;
         _client = new DiscordSocketClient();
         _commands = new CommandService();
         _interactiveCommandsService = new InteractiveCommandsService();
-        _apiRequestsService = new ApiRequestsService();
-        _requestCommandsService = new RequestCommandsService(_apiRequestsService);
-
+        ApiRequestsService apiRequestsService = new();
+        RequestCommandsService requestCommandsService = new(apiRequestsService);
+        
         _services = new ServiceCollection()
             .AddSingleton(_client)
             .AddSingleton(_commands)
             .AddSingleton(_interactiveCommandsService)
-            .AddSingleton(_apiRequestsService)
-            .AddSingleton(_requestCommandsService)
+            .AddSingleton(apiRequestsService)
+            .AddSingleton(requestCommandsService)
             .BuildServiceProvider();
-
+    }
+    
+    public async Task RunAsync()
+    {
         _client.Log += Log;
         await RegisterCommands();
-        await _client.LoginAsync(TokenType.Bot, TOKEN);
+        await _client.LoginAsync(TokenType.Bot, _token);
         await _client.StartAsync();
 
         await Task.Delay(-1);
@@ -54,6 +57,7 @@ public class Bot
     private async Task RegisterCommands()
     {
         _client.MessageReceived += HandleCommandAsync;
+        //_client.ReactionAdded += ClientOnReactionAdded;
         await _commands.AddModulesAsync(Assembly.GetEntryAssembly(), _services);
     }
 
@@ -76,15 +80,29 @@ public class Bot
 
         if (!message.HasStringPrefix(BotHelper.COMMAND_SYMBOL, ref argPos))
         {
-            _interactiveCommandsService.ProcessInteraction(context);
+            await ProcessInteraction(context);
         }
         
         IResult? result = await _commands.ExecuteAsync(context, argPos, _services);
+    }
 
-        //TODO: QUESTION -> do I really need this
-        if (result is null || !result.IsSuccess)
+    private async Task ProcessInteraction(SocketCommandContext context)
+    {
+        try
         {
-            Console.WriteLine("Error");
+            _interactiveCommandsService.ProcessInteraction(context);
+        }
+        catch (BaseException ex)
+        {
+            Console.WriteLine(ex);
+            await _interactiveCommandsService.CancelInteraction(context, ex.DisplayMessage);
+            return;
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex);
+            const string cancelText = "An error occured during the execution, the interaction has been cancelled!";
+            await _interactiveCommandsService.CancelInteraction(context, cancelText);
         }
     }
 }

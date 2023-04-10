@@ -5,11 +5,14 @@
         <TargetFramework>net6.0</TargetFramework>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
+        <UserSecretsId>519dd06b-674a-41ef-b81d-db912443a0ea</UserSecretsId>
     </PropertyGroup>
 
     <ItemGroup>
       <PackageReference Include="Discord.Net" Version="3.7.2" />
       <PackageReference Include="Discord.Net.Commands" Version="3.7.2" />
+      <PackageReference Include="Microsoft.Extensions.Configuration" Version="6.0.1" />
+      <PackageReference Include="Microsoft.Extensions.Configuration.UserSecrets" Version="6.0.1" />
       <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="6.0.0" />
       <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="6.0.0" />
       <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
